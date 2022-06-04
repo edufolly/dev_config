@@ -106,7 +106,79 @@ void main(List<String> arguments) {
       .toList()
     ..sort((String a, String b) => a.compareTo(b));
 
-  /// Search in path
+  // print('RootPath: $rootPath');
+  // print('SaveDir: $saveDir');
+  // print('CheckDir: $checkDir');
+
+  print('');
+  print('');
+
+  ///
+  ///
+  /// Search in path to save
+  List<FileSystemEntity> allFiles = saveDir.listSync(
+    recursive: true,
+    followLinks: false,
+  )..retainWhere((FileSystemEntity f) => f is File);
+
+  for (FileSystemEntity dest in allFiles) {
+    String originPath =
+        p.join(checkPath, p.relative(dest.path, from: savePath));
+
+    String originParent = p.dirname(originPath);
+
+    Directory destDir = Directory(p.dirname(originPath));
+
+    if (destDir.existsSync()) {
+      List<FileSystemEntity> list = destDir.listSync(followLinks: false)
+        ..retainWhere(
+          (FileSystemEntity f) => f is! Directory && f.path == originPath,
+        );
+
+      String linkTarget = p.relative(dest.path, from: originParent);
+
+      bool createLink = false;
+
+      if (list.isEmpty) {
+        createLink = true;
+      } else {
+        if (list.length == 1) {
+          FileSystemEntity e = list.first;
+          if (e is Link) {
+            if (e.targetSync() != linkTarget) {
+              print('Link updated to: $linkTarget\n$originPath');
+              e.updateSync(linkTarget);
+            }
+          } else if (e is File) {
+            print('Expected a link but found a file.');
+            String backup = '${e.path}.bkp';
+            print('Backup created: $backup');
+            e.renameSync(backup);
+            createLink = true;
+          } else {
+            print('Unknown FileSystemEntity type: $e\n$originPath');
+          }
+        } else {
+          print('Found more than one file. Ignoring.\n$originPath');
+        }
+      }
+
+      if (createLink) {
+        Link(originPath).createSync(linkTarget);
+        print('Link created: $originPath');
+      }
+    } else {
+      print('Skipping: project not exists. $originPath');
+    }
+  }
+
+  print('');
+  print('');
+
+  ///
+  ///
+  ///
+  /// Search in path to check
   for (String dirName in dirNames) {
     print('Checking: $dirName');
 
@@ -140,7 +212,9 @@ void main(List<String> arguments) {
             File(p.join(savePath, p.relative(origin.path, from: checkPath)));
 
         if (dest.existsSync()) {
-          dest.deleteSync();
+          String backup = '${dest.path}.bkp';
+          print('Backup created: $backup');
+          dest.renameSync(backup);
         } else {
           dest.parent.createSync(recursive: true);
         }
@@ -149,12 +223,14 @@ void main(List<String> arguments) {
 
         String originPath = origin.path;
 
+        String originParent = origin.parent.path;
+
         origin.deleteSync();
 
-        Link(originPath).createSync(dest.path);
+        Link(originPath).createSync(p.relative(dest.path, from: originParent));
       }
     } else {
-      print('$checkNamePath not exists: ignoring.');
+      print('Skipping: project not exists. $checkNamePath');
     }
   }
 }
