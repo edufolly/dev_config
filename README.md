@@ -1,2 +1,14 @@
-A sample command-line application with an entrypoint in `bin/`, library code
-in `lib/`, and example unit test in `test/`.
+# DEV CONFIG
+
+
+### `config.yml` example
+```yaml
+savePath: edufolly
+checkPath: ../
+regexCheckFiles:
+  - '^\.env$'
+  - '.*\.jks$'
+  - '^.*-service-account\.json$'
+  - '^key\.properties$'
+  - '^launch\.json$'
+```
