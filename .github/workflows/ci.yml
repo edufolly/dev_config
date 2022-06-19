@@ -1,0 +1,22 @@
+name: Dev Native Build
+
+on:
+  push:
+    branches: [ dev ]
+
+jobs:
+  build:
+    name: Linux x64 Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+      
+      - name: Flutter SDK
+        uses: subosito/flutter-action@v2
+
+      - name: Build
+        run: |
+          dart --version
+          mkdir -p build
+          dart compile exe -o build/dev-config bin/main.dart
