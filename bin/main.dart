@@ -8,6 +8,18 @@ import 'package:yaml/yaml.dart' as yaml;
 void main(List<String> arguments) {
   String rootPath = '';
 
+  bool dryRun = false;
+
+  if (arguments.contains('--dry-run')) {
+    dryRun = true;
+  }
+
+  bool debug = false;
+
+  if (arguments.contains('--debug')) {
+    debug = true;
+  }
+
   if (arguments.contains('--path')) {
     int pos = arguments.indexOf('--path');
 
@@ -46,7 +58,11 @@ void main(List<String> arguments) {
   } else {
     try {
       savePath = doc['savePath'];
-    } on Exception catch (_) {
+    } on Exception catch (ex, st) {
+      if (debug) {
+        print(ex);
+        print(st);
+      }
       exitError('savePath has a invalid value on config.yml');
     }
   }
@@ -68,7 +84,11 @@ void main(List<String> arguments) {
   } else {
     try {
       checkPath = doc['checkPath'];
-    } on Exception catch (_) {
+    } on Exception catch (ex, st) {
+      if (debug) {
+        print(ex);
+        print(st);
+      }
       exitError('checkPath has a invalid value on config.yml');
     }
   }
@@ -85,14 +105,35 @@ void main(List<String> arguments) {
   /// regexAlwaysIgnorePaths
   ///
   List<RegExp> regexAlwaysIgnorePaths = <RegExp>[];
-  if (doc.containsKey('regexAlwaysIgnore')) {
+  if (doc.containsKey('regexAlwaysIgnorePaths')) {
     try {
-      regexAlwaysIgnorePaths = (doc['regexAlwaysIgnore'] as yaml.YamlList)
+      regexAlwaysIgnorePaths = (doc['regexAlwaysIgnorePaths'] as yaml.YamlList)
           .map((dynamic e) => RegExp(e.toString()))
           .toList();
-    } on Exception catch (ex) {
+    } on Exception catch (ex, st) {
       print(ex);
-      exitError('regexAlwaysIgnore has a invalid value on config.yml');
+      if (debug) {
+        print(st);
+      }
+      exitError('regexAlwaysIgnorePaths has a invalid value on config.yml');
+    }
+  }
+
+  ///
+  /// regexAlwaysAcceptPaths
+  ///
+  List<RegExp> regexAlwaysAcceptPaths = <RegExp>[];
+  if (doc.containsKey('regexAlwaysAcceptPaths')) {
+    try {
+      regexAlwaysAcceptPaths = (doc['regexAlwaysAcceptPaths'] as yaml.YamlList)
+          .map((dynamic e) => RegExp(e.toString()))
+          .toList();
+    } on Exception catch (ex, st) {
+      print(ex);
+      if (debug) {
+        print(st);
+      }
+      exitError('regexAlwaysAcceptPaths has a invalid value on config.yml');
     }
   }
 
@@ -107,8 +148,11 @@ void main(List<String> arguments) {
       regexCheckFiles = (doc['regexCheckFiles'] as yaml.YamlList)
           .map((dynamic e) => RegExp(e.toString()))
           .toList();
-    } on Exception catch (ex) {
+    } on Exception catch (ex, st) {
       print(ex);
+      if (debug) {
+        print(st);
+      }
       exitError('regexCheckFiles has a invalid value on config.yml');
     }
   }
@@ -163,13 +207,17 @@ void main(List<String> arguments) {
           if (e is Link) {
             if (e.targetSync() != linkTarget) {
               print('Link updated to: $linkTarget\n$originPath');
-              e.updateSync(linkTarget);
+              if (!dryRun) {
+                e.updateSync(linkTarget);
+              }
             }
           } else if (e is File) {
             print('Expected a link but found a file.');
             String backup = '${e.path}.bkp';
             print('Backup created: $backup');
-            e.renameSync(backup);
+            if (!dryRun) {
+              e.renameSync(backup);
+            }
             createLink = true;
           } else {
             print('Unknown FileSystemEntity type: $e\n$originPath');
@@ -180,7 +228,9 @@ void main(List<String> arguments) {
       }
 
       if (createLink) {
-        Link(originPath).createSync(linkTarget);
+        if (!dryRun) {
+          Link(originPath).createSync(linkTarget);
+        }
         print('Link created: $originPath');
       }
     } else {
@@ -211,14 +261,29 @@ void main(List<String> arguments) {
           if (e is File) {
             for (RegExp regExp in regexAlwaysIgnorePaths) {
               if (regExp.hasMatch(e.path)) {
+                // if (debug) {
+                //   print('[regexAlwaysIgnorePaths] => ${e.path}');
+                // }
                 return false;
               }
             }
 
+            for (RegExp regExp in regexAlwaysAcceptPaths) {
+              if (regExp.hasMatch(e.path)) {
+                if (debug) {
+                  print('[regexAlwaysAcceptPaths] => ${e.path}');
+                }
+                return true;
+              }
+            }
+
             String filename = p.basename(e.path);
+
             for (RegExp regexp in regexCheckFiles) {
               if (regexp.hasMatch(filename)) {
-                print('Found: ${e.path}');
+                if (debug) {
+                  print('[regexCheckFiles] => ${e.path}');
+                }
                 return true;
               }
             }
@@ -236,20 +301,29 @@ void main(List<String> arguments) {
         if (dest.existsSync()) {
           String backup = '${dest.path}.bkp';
           print('Backup created: $backup');
-          dest.renameSync(backup);
+          if (!dryRun) {
+            dest.renameSync(backup);
+          }
         } else {
-          dest.parent.createSync(recursive: true);
+          if (!dryRun) {
+            dest.parent.createSync(recursive: true);
+          }
         }
-
-        origin.copySync(dest.path);
 
         String originPath = origin.path;
 
         String originParent = origin.parent.path;
 
-        origin.deleteSync();
+        print('Copy: $originPath to ${dest.path}');
 
-        Link(originPath).createSync(p.relative(dest.path, from: originParent));
+        if (!dryRun) {
+          origin
+            ..copySync(dest.path)
+            ..deleteSync();
+
+          Link(originPath)
+              .createSync(p.relative(dest.path, from: originParent));
+        }
       }
     } else {
       print('Skipping: project not exists. $checkNamePath');
