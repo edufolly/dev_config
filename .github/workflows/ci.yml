@@ -21,3 +21,14 @@ jobs:
           mkdir -p build
           dart pub get
           dart compile exe -o build/dev-config bin/main.dart
+
+      - name: Compress Build
+        working-directory: build
+        run: tar -cvzf dev-config-linux.tar.gz .
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: dev-config-linux
+          path: build/dev-config-linux.tar.gz
+          retention-days: 1
