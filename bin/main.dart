@@ -82,6 +82,21 @@ void main(List<String> arguments) {
   }
 
   ///
+  /// regexAlwaysIgnorePaths
+  ///
+  List<RegExp> regexAlwaysIgnorePaths = <RegExp>[];
+  if (doc.containsKey('regexAlwaysIgnore')) {
+    try {
+      regexAlwaysIgnorePaths = (doc['regexAlwaysIgnore'] as yaml.YamlList)
+          .map((dynamic e) => RegExp(e.toString()))
+          .toList();
+    } on Exception catch (ex) {
+      print(ex);
+      exitError('regexAlwaysIgnore has a invalid value on config.yml');
+    }
+  }
+
+  ///
   /// regexCheckFiles
   ///
   List<RegExp> regexCheckFiles = <RegExp>[];
@@ -92,8 +107,9 @@ void main(List<String> arguments) {
       regexCheckFiles = (doc['regexCheckFiles'] as yaml.YamlList)
           .map((dynamic e) => RegExp(e.toString()))
           .toList();
-    } on Exception catch (_) {
-      exitError('checkPath has a invalid value on config.yml');
+    } on Exception catch (ex) {
+      print(ex);
+      exitError('regexCheckFiles has a invalid value on config.yml');
     }
   }
 
@@ -193,7 +209,13 @@ void main(List<String> arguments) {
         followLinks: false,
       )..retainWhere((FileSystemEntity e) {
           if (e is File) {
-            String filename = e.path.split(p.separator).last;
+            for (RegExp regExp in regexAlwaysIgnorePaths) {
+              if (regExp.hasMatch(e.path)) {
+                return false;
+              }
+            }
+
+            String filename = p.basename(e.path);
             for (RegExp regexp in regexCheckFiles) {
               if (regexp.hasMatch(filename)) {
                 print('Found: ${e.path}');
