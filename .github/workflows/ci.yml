@@ -19,4 +19,5 @@ jobs:
         run: |
           dart --version
           mkdir -p build
+          dart pub get
           dart compile exe -o build/dev-config bin/main.dart
