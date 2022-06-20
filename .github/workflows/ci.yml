@@ -93,3 +93,35 @@ jobs:
           name: dev-config-windows.exe
           path: build/dev-config.exe
           retention-days: 1
+
+  ###############
+  # MacOS Build #
+  ###############
+  macos-build:
+    name: MacOS Build
+    needs: [ boot ]
+    runs-on: macos-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+      
+      - name: Flutter SDK
+        uses: subosito/flutter-action@v2
+
+      - name: Build
+        run: |
+          dart --version
+          mkdir -p build
+          dart pub get
+          dart compile exe -o build/dev-config bin/main.dart
+
+      - name: Compress Build
+        working-directory: build
+        run: tar -cvzf dev-config-macos.tar.gz dev-config
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: dev-config-macos.tar.gz
+          path: build/dev-config-macos.tar.gz
+          retention-days: 1
