@@ -5,8 +5,33 @@ on:
     branches: [ dev ]
 
 jobs:
-  build:
-    name: Linux x64 Build
+  ########
+  # Boot #
+  ########
+  boot:
+    name: Boot
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version-step.outputs.version }}
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v3
+
+      - name: Dart Analyze
+        run: dart analyze --fatal-infos
+
+      - name: Get Pubspec Version
+        id: version-step
+        run: |
+          export VERSION=$(grep 'version:' pubspec.yaml | cut -c 10- | cut -f 1 -d '+')
+          echo "::set-output name=version::$VERSION"
+
+  ###############
+  # Linux Build #
+  ###############
+  linux-build:
+    name: Linux Build
+    needs: [ boot ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the code
@@ -29,6 +54,34 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: dev-config-linux
+          name: dev-config-linux.tar.gz
           path: build/dev-config-linux.tar.gz
+          retention-days: 1
+
+  #################
+  # Windows Build #
+  #################
+  windows-build:
+    name: Windows Build
+    needs: [ boot ]
+    runs-on: windows-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+      
+      - name: Flutter SDK
+        uses: subosito/flutter-action@v2
+
+      - name: Build
+        run: |
+          dart --version
+          mkdir build
+          dart pub get
+          dart compile exe -o build/dev-config.exe bin/main.dart
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: dev-config-windows.exe
+          path: build/dev-config.exe
           retention-days: 1
