@@ -24,7 +24,7 @@ jobs:
 
       - name: Compress Build
         working-directory: build
-        run: tar -cvzf dev-config-linux.tar.gz .
+        run: tar -cvzf dev-config-linux.tar.gz dev-config
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
