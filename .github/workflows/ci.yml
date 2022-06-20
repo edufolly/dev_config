@@ -20,6 +20,9 @@ jobs:
       - name: Flutter SDK
         uses: subosito/flutter-action@v2
 
+      - name: Pub get
+        run: dart pub get
+
       - name: Dart Analyze
         run: dart analyze --fatal-infos
 
