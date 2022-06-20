@@ -17,8 +17,13 @@ jobs:
       - name: Code Checkout
         uses: actions/checkout@v3
 
+      - name: Flutter SDK
+        uses: subosito/flutter-action@v2
+
       - name: Dart Analyze
         run: dart analyze --fatal-infos
+
+      # TODO - Tests
 
       - name: Get Pubspec Version
         id: version-step
