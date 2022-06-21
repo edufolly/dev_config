@@ -1,6 +1,10 @@
 # DEV CONFIG
 
-## Command parameters
+## Command usage
+
+```shell
+dev-config [--dry-run] [--debug] --path <path>
+```
 
 | Parameter   | Required | Default Value | Description               |
 | :---------- | :------: | :------------ | :------------------------ |
