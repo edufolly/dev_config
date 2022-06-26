@@ -17,8 +17,14 @@ jobs:
       - name: Code Checkout
         uses: actions/checkout@v3
 
+      - name: Check Version
+        run: ./check_version.sh
+
       - name: Flutter SDK
         uses: subosito/flutter-action@v2
+        with:
+          cache: true
+          cache-key: ${{ runner.os }}-flutter
 
       - name: Pub get
         run: dart pub get
@@ -31,7 +37,7 @@ jobs:
       - name: Get Pubspec Version
         id: version-step
         run: |
-          export VERSION=$(grep 'version:' pubspec.yaml | cut -c 10- | cut -f 1 -d '+')
+          VERSION=$(grep 'version:' pubspec.yaml | cut -c 10- | cut -f 1 -d '+')
           echo "::set-output name=version::$VERSION"
 
   ###############
@@ -47,6 +53,9 @@ jobs:
       
       - name: Flutter SDK
         uses: subosito/flutter-action@v2
+        with:
+          cache: true
+          cache-key: ${{ runner.os }}-flutter
 
       - name: Build
         run: |
@@ -54,6 +63,7 @@ jobs:
           mkdir -p build
           dart pub get
           dart compile exe -o build/dev-config bin/main.dart
+          chmod a+x build/dev-config
 
       - name: Compress Build
         working-directory: build
@@ -62,7 +72,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: dev-config-linux.tar.gz
+          name: dev-config-linux
           path: build/dev-config-linux.tar.gz
           retention-days: 1
 
@@ -79,6 +89,9 @@ jobs:
       
       - name: Flutter SDK
         uses: subosito/flutter-action@v2
+        with:
+          cache: true
+          cache-key: ${{ runner.os }}-flutter
 
       - name: Build
         run: |
@@ -87,11 +100,15 @@ jobs:
           dart pub get
           dart compile exe -o build/dev-config.exe bin/main.dart
 
+      - name: Compress Build
+        working-directory: build
+        run: Compress-Archive dev-config.exe dev-config-windows.zip
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: dev-config-windows.exe
-          path: build/dev-config.exe
+          name: dev-config-windows
+          path: build/dev-config-windows.zip
           retention-days: 1
 
   ###############
@@ -107,6 +124,9 @@ jobs:
       
       - name: Flutter SDK
         uses: subosito/flutter-action@v2
+        with:
+          cache: true
+          cache-key: ${{ runner.os }}-flutter
 
       - name: Build
         run: |
@@ -114,6 +134,7 @@ jobs:
           mkdir -p build
           dart pub get
           dart compile exe -o build/dev-config bin/main.dart
+          chmod a+x build/dev-config
 
       - name: Compress Build
         working-directory: build
@@ -122,6 +143,41 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: dev-config-macos.tar.gz
+          name: dev-config-macos
           path: build/dev-config-macos.tar.gz
           retention-days: 1
+
+  ##################
+  # Release Deploy #
+  ##################
+  release-deploy:
+    name: Release Deploy
+    needs: [ boot, linux-build, windows-build, macos-build ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v3
+
+      - name: Creating a GitHub Tag
+        uses: mathieudutour/github-tag-action@v6.0
+        with:
+          custom_tag: ${{ needs.boot.outputs.version }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: List
+        working-directory: artifacts
+        run: ls -la
+
+      - name: Create a GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: v${{ needs.boot.outputs.version }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: "artifacts/**/*.tar.gz,artifacts/**/*.zip"
