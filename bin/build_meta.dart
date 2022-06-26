@@ -21,7 +21,11 @@ void main(List<String> arguments) {
 
   String version = doc['version'];
 
-  print(version);
+  if (version.isEmpty) {
+    exitError('version is empty');
+  }
+
+  print('Version: $version');
 
   File meta = File('bin/meta.dart');
 
@@ -29,11 +33,13 @@ void main(List<String> arguments) {
     exitError('bin/meta.dart not found');
   }
 
-  String content = meta.readAsStringSync();
+  String contents = meta.readAsStringSync();
 
-  content = content.replaceAll("version = 'dev';", "version = '$version';");
+  contents = contents.replaceAll("version = 'dev';", "version = '$version';");
 
-  meta.writeAsString(content, flush: true);
+  meta.writeAsString(contents, flush: true);
+
+  print('OK: meta.dart');
 }
 
 ///
