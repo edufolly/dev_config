@@ -1,4 +1,4 @@
-name: Dev Native Build
+name: Main Native Build
 
 on:
   push:

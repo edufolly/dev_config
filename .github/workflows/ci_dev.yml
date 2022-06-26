@@ -50,6 +50,8 @@ jobs:
       
       - name: Flutter SDK
         uses: subosito/flutter-action@v2
+        with:
+          cache: true
 
       - name: Build
         run: |
@@ -91,15 +93,11 @@ jobs:
           dart pub get
           dart compile exe -o build/dev-config.exe bin/main.dart
 
-      - name: Compress Build
-        # working-directory: build
-        run: Compress-Archive build/dev-config.exe dev-config-windows.zip
-
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: dev-config-windows.zip
-          path: dev-config-windows.zip
+          name: build/dev-config.exe
+          path: dev-config-windows
           retention-days: 1
 
   ###############
@@ -164,4 +162,4 @@ jobs:
         with:
           tag: v${{ needs.boot.outputs.version }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "artifacts/*.*"
+          artifacts: artifacts
