@@ -8,9 +8,13 @@ dev-config [--dry-run] [--debug] --path <path>
 
 | Parameter   | Required | Default Value | Description               |
 | :---------- | :------: | :------------ | :------------------------ |
-| `--path`    |   Yes    | ---           | The base path to analyse. |
+| `--path`    |   Yes    | ---           | The base with config.yml. |
 | `--dry-run` |    No    | Disabled      | To do a dry run.          |
 | `--debug`   |    No    | Disabled      | Show debug messages.      |
+
+## Important
+
+To scan a folder in `checkPath`, create a empty folder with the same name inside `savePath`.
 
 ## Configuration example: `config.yml`
 
@@ -25,6 +29,8 @@ checkPath: ../
 regexAlwaysIgnorePaths:
   - '.*/build/.*'
   - '.*/\.git/.*'
+  - '.*\.bkp$'
+  - '.*\.log$'
 
 # List of regular expressions to accept a path.
 regexAlwaysAcceptPaths:
@@ -37,5 +43,4 @@ regexCheckFiles:
   - '^.*-service-account\.json$'
   - '^key\.properties$'
   - '^launch\.json$'
-  - '^import.*\.sql$'
 ```

@@ -2,10 +2,14 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart' as yaml;
 
+import 'meta.dart';
+
 ///
 ///
 ///
 void main(List<String> arguments) {
+  print('dev-config [version ${Meta.version}]');
+
   String rootPath = '';
 
   bool dryRun = false;
@@ -170,8 +174,8 @@ void main(List<String> arguments) {
   // print('SaveDir: $saveDir');
   // print('CheckDir: $checkDir');
 
-  print('');
-  print('');
+  // print('');
+  // print('');
 
   ///
   ///
