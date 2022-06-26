@@ -22,6 +22,9 @@ jobs:
 
       - name: Flutter SDK
         uses: subosito/flutter-action@v2
+        with:
+          cache: true
+          cache-key: ${{ runner.os }}-flutter
 
       - name: Pub get
         run: dart pub get
@@ -52,6 +55,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           cache: true
+          cache-key: ${{ runner.os }}-flutter
 
       - name: Build
         run: |
@@ -68,7 +72,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: dev-config-linux.tar.gz
+          name: dev-config-linux
           path: build/dev-config-linux.tar.gz
           retention-days: 1
 
@@ -85,6 +89,9 @@ jobs:
       
       - name: Flutter SDK
         uses: subosito/flutter-action@v2
+        with:
+          cache: true
+          cache-key: ${{ runner.os }}-flutter
 
       - name: Build
         run: |
@@ -100,7 +107,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: dev-config-windows.zip
+          name: dev-config-windows
           path: build/dev-config-windows.zip
           retention-days: 1
 
@@ -117,6 +124,9 @@ jobs:
       
       - name: Flutter SDK
         uses: subosito/flutter-action@v2
+        with:
+          cache: true
+          cache-key: ${{ runner.os }}-flutter
 
       - name: Build
         run: |
@@ -133,7 +143,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: dev-config-macos.tar.gz
+          name: dev-config-macos
           path: build/dev-config-macos.tar.gz
           retention-days: 1
 
@@ -170,4 +180,4 @@ jobs:
         with:
           tag: v${{ needs.boot.outputs.version }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "artifacts/*.tar.gz,artifacts/*.zip"
+          artifacts: "artifacts/**/*.tar.gz,artifacts/**/*.zip"
