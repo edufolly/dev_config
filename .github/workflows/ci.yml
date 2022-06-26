@@ -62,6 +62,7 @@ jobs:
           dart --version
           mkdir -p build
           dart pub get
+          dart run bin/build_meta.dart
           dart compile exe -o build/dev-config bin/main.dart
           chmod a+x build/dev-config
 
@@ -98,6 +99,7 @@ jobs:
           dart --version
           mkdir build
           dart pub get
+          dart run bin/build_meta.dart
           dart compile exe -o build/dev-config.exe bin/main.dart
 
       - name: Compress Build
@@ -133,6 +135,7 @@ jobs:
           dart --version
           mkdir -p build
           dart pub get
+          dart run bin/build_meta.dart
           dart compile exe -o build/dev-config bin/main.dart
           chmod a+x build/dev-config
 

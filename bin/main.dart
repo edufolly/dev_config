@@ -9,6 +9,7 @@ import 'meta.dart';
 ///
 void main(List<String> arguments) {
   print('dev-config [version ${Meta.version}]');
+  print('');
 
   String rootPath = '';
 
@@ -174,9 +175,6 @@ void main(List<String> arguments) {
   // print('SaveDir: $saveDir');
   // print('CheckDir: $checkDir');
 
-  // print('');
-  // print('');
-
   ///
   ///
   /// Search in path to save
@@ -241,9 +239,6 @@ void main(List<String> arguments) {
       print('Skipping: project not exists. $originPath');
     }
   }
-
-  print('');
-  print('');
 
   ///
   ///
