@@ -93,11 +93,15 @@ jobs:
           dart pub get
           dart compile exe -o build/dev-config.exe bin/main.dart
 
+      - name: Compress Build
+        working-directory: build
+        run: Compress-Archive dev-config.exe dev-config-windows.zip
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: build/dev-config.exe
-          path: dev-config-windows
+          name: dev-config-windows.zip
+          path: build/dev-config-windows.zip
           retention-days: 1
 
   ###############
@@ -157,9 +161,13 @@ jobs:
         with:
           path: artifacts
 
+      - name: List
+        working-directory: artifacts
+        run: ls -la
+
       - name: Create a GitHub Release
         uses: ncipollo/release-action@v1
         with:
           tag: v${{ needs.boot.outputs.version }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: artifacts
+          artifacts: "artifacts/*.tar.gz,artifacts/*.zip"
