@@ -3,26 +3,37 @@ import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart' as yaml;
 
 import 'meta.dart';
+import 'update.dart';
 
 ///
 ///
 ///
-void main(List<String> arguments) {
+void main(List<String> arguments) async {
   print('dev-config [version ${Meta.version}]');
   print('');
 
   String rootPath = '';
 
-  bool dryRun = false;
-
-  if (arguments.contains('--dry-run')) {
-    dryRun = true;
-  }
-
   bool debug = false;
 
   if (arguments.contains('--debug')) {
     debug = true;
+  }
+
+  bool checkUpdate = true;
+
+  if (arguments.contains('--no-check-update')) {
+    checkUpdate = false;
+  }
+
+  if (checkUpdate) {
+    await Update(debug: debug).check();
+  }
+
+  bool dryRun = false;
+
+  if (arguments.contains('--dry-run')) {
+    dryRun = true;
   }
 
   if (arguments.contains('--path')) {
