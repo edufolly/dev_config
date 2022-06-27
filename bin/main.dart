@@ -308,8 +308,10 @@ void main(List<String> arguments) async {
         File dest =
             File(p.join(savePath, p.relative(origin.path, from: checkPath)));
 
+        String destPath = dest.path;
+
         if (dest.existsSync()) {
-          String backup = '${dest.path}.bkp';
+          String backup = '$destPath.bkp';
           print('Backup created: $backup');
           if (!dryRun) {
             dest.renameSync(backup);
@@ -324,15 +326,15 @@ void main(List<String> arguments) async {
 
         String originParent = origin.parent.path;
 
-        print('Copy: $originPath to ${dest.path}');
+        print('Copy: $originPath to $destPath');
 
         if (!dryRun) {
           origin
-            ..copySync(dest.path)
+            ..copySync(destPath)
             ..deleteSync();
 
           Link(originPath)
-              .createSync(p.relative(dest.path, from: originParent));
+              .createSync(p.relative(destPath, from: originParent));
         }
       }
     } else {

@@ -1,6 +1,6 @@
 name: dev_config
 description: Backup your configuration files to a private repository.
-version: 0.0.2
+version: 0.0.3
 homepage: https://github.com/edufolly/dev_config
 
 environment:
