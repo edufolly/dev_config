@@ -3,14 +3,15 @@
 ## Command usage
 
 ```shell
-dev-config [--dry-run] [--debug] --path <path>
+dev-config [--dry-run] [--debug] [--no-check-update] --path <path>
 ```
 
-| Parameter   | Required | Default Value | Description               |
-| :---------- | :------: | :------------ | :------------------------ |
-| `--path`    |   Yes    | ---           | The base with config.yml. |
-| `--dry-run` |    No    | Disabled      | To do a dry run.          |
-| `--debug`   |    No    | Disabled      | Show debug messages.      |
+| Parameter           | Required | Default Value | Description               |
+| :------------------ | :------: | :------------ | :------------------------ |
+| `--path`            |   Yes    | ---           | The base with config.yml. |
+| `--dry-run`         |    No    | Disabled      | To do a dry run.          |
+| `--debug`           |    No    | Disabled      | Show debug messages.      |
+| `--no-check-update` |    No    | Enabled       | No check update.          |
 
 ## Important
 

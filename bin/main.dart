@@ -3,26 +3,37 @@ import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart' as yaml;
 
 import 'meta.dart';
+import 'update.dart';
 
 ///
 ///
 ///
-void main(List<String> arguments) {
+void main(List<String> arguments) async {
   print('dev-config [version ${Meta.version}]');
   print('');
 
   String rootPath = '';
 
-  bool dryRun = false;
-
-  if (arguments.contains('--dry-run')) {
-    dryRun = true;
-  }
-
   bool debug = false;
 
   if (arguments.contains('--debug')) {
     debug = true;
+  }
+
+  bool checkUpdate = true;
+
+  if (arguments.contains('--no-check-update')) {
+    checkUpdate = false;
+  }
+
+  if (checkUpdate) {
+    await Update(debug: debug).check();
+  }
+
+  bool dryRun = false;
+
+  if (arguments.contains('--dry-run')) {
+    dryRun = true;
   }
 
   if (arguments.contains('--path')) {
@@ -297,8 +308,10 @@ void main(List<String> arguments) {
         File dest =
             File(p.join(savePath, p.relative(origin.path, from: checkPath)));
 
+        String destPath = dest.path;
+
         if (dest.existsSync()) {
-          String backup = '${dest.path}.bkp';
+          String backup = '$destPath.bkp';
           print('Backup created: $backup');
           if (!dryRun) {
             dest.renameSync(backup);
@@ -313,15 +326,15 @@ void main(List<String> arguments) {
 
         String originParent = origin.parent.path;
 
-        print('Copy: $originPath to ${dest.path}');
+        print('Copy: $originPath to $destPath');
 
         if (!dryRun) {
           origin
-            ..copySync(dest.path)
+            ..copySync(destPath)
             ..deleteSync();
 
           Link(originPath)
-              .createSync(p.relative(dest.path, from: originParent));
+              .createSync(p.relative(destPath, from: originParent));
         }
       }
     } else {

@@ -35,7 +35,10 @@ void main(List<String> arguments) {
 
   String contents = meta.readAsStringSync();
 
-  contents = contents.replaceAll("version = 'dev';", "version = '$version';");
+  contents = contents.replaceAll(
+    "version = '999.999.999';",
+    "version = '$version';",
+  );
 
   meta.writeAsString(contents, flush: true);
 
