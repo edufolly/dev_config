@@ -7,7 +7,7 @@ dev-config [--dry-run] [--debug] [--no-check-update] --path <path>
 ```
 
 | Parameter           | Required | Default Value | Description               |
-| :------------------ | :------: | :------------ | :------------------------ |
+|:--------------------|:--------:|:--------------|:--------------------------|
 | `--path`            |   Yes    | ---           | The base with config.yml. |
 | `--dry-run`         |    No    | Disabled      | To do a dry run.          |
 | `--debug`           |    No    | Disabled      | Show debug messages.      |
