@@ -225,7 +225,7 @@ void main(List<String> arguments) async {
               }
             }
           } else if (e is File) {
-            print('Expected a link but found a file.');
+            print('Expected a link but found a file. $e');
             String backup = '${e.path}.bkp';
             print('Backup created: $backup');
             if (!dryRun) {
@@ -333,8 +333,7 @@ void main(List<String> arguments) async {
             ..copySync(destPath)
             ..deleteSync();
 
-          Link(originPath)
-              .createSync(p.relative(destPath, from: originParent));
+          Link(originPath).createSync(p.relative(destPath, from: originParent));
         }
       }
     } else {
