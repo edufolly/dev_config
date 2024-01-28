@@ -37,7 +37,7 @@ void main(List<String> arguments) async {
   }
 
   if (arguments.contains('--path')) {
-    int pos = arguments.indexOf('--path');
+    final int pos = arguments.indexOf('--path');
 
     if (pos + 2 > arguments.length) {
       exitError('--path value not found');
@@ -55,15 +55,15 @@ void main(List<String> arguments) async {
   ///
   /// config.yml
   ///
-  String configPath = p.normalize(p.join(rootPath, 'config.yml'));
+  final String configPath = p.normalize(p.join(rootPath, 'config.yml'));
 
-  File configYml = File(configPath);
+  final File configYml = File(configPath);
 
   if (!configYml.existsSync()) {
     exitError('config.yml not found in $rootPath.');
   }
 
-  yaml.YamlMap doc = yaml.loadYaml(configYml.readAsStringSync());
+  final yaml.YamlMap doc = yaml.loadYaml(configYml.readAsStringSync());
 
   ///
   /// savePath
@@ -85,7 +85,7 @@ void main(List<String> arguments) async {
 
   savePath = p.join(rootPath, savePath);
 
-  Directory saveDir = Directory(savePath);
+  final Directory saveDir = Directory(savePath);
 
   if (!saveDir.existsSync()) {
     exitError('$savePath not found.');
@@ -111,7 +111,7 @@ void main(List<String> arguments) async {
 
   checkPath = p.normalize(p.join(rootPath, checkPath));
 
-  Directory checkDir = Directory(checkPath);
+  final Directory checkDir = Directory(checkPath);
 
   if (!checkDir.existsSync()) {
     exitError('$checkDir not found.');
@@ -174,10 +174,10 @@ void main(List<String> arguments) async {
   }
 
   /// Paths to check
-  List<FileSystemEntity> dirs = saveDir.listSync(followLinks: false)
+  final List<FileSystemEntity> dirs = saveDir.listSync(followLinks: false)
     ..retainWhere((FileSystemEntity e) => e is Directory);
 
-  List<String> dirNames = dirs
+  final List<String> dirNames = dirs
       .map((FileSystemEntity e) => e.path.split(p.separator).last)
       .toList()
     ..sort((String a, String b) => a.compareTo(b));
@@ -189,26 +189,26 @@ void main(List<String> arguments) async {
   ///
   ///
   /// Search in path to save
-  List<FileSystemEntity> allFiles = saveDir.listSync(
+  final List<FileSystemEntity> allFiles = saveDir.listSync(
     recursive: true,
     followLinks: false,
   )..retainWhere((FileSystemEntity f) => f is File);
 
-  for (FileSystemEntity dest in allFiles) {
-    String originPath =
+  for (final FileSystemEntity dest in allFiles) {
+    final String originPath =
         p.join(checkPath, p.relative(dest.path, from: savePath));
 
-    String originParent = p.dirname(originPath);
+    final String originParent = p.dirname(originPath);
 
-    Directory destDir = Directory(p.dirname(originPath));
+    final Directory destDir = Directory(p.dirname(originPath));
 
     if (destDir.existsSync()) {
-      List<FileSystemEntity> list = destDir.listSync(followLinks: false)
+      final List<FileSystemEntity> list = destDir.listSync(followLinks: false)
         ..retainWhere(
           (FileSystemEntity f) => f is! Directory && f.path == originPath,
         );
 
-      String linkTarget = p.relative(dest.path, from: originParent);
+      final String linkTarget = p.relative(dest.path, from: originParent);
 
       bool createLink = false;
 
@@ -216,7 +216,7 @@ void main(List<String> arguments) async {
         createLink = true;
       } else {
         if (list.length == 1) {
-          FileSystemEntity e = list.first;
+          final FileSystemEntity e = list.first;
           if (e is Link) {
             if (e.targetSync() != linkTarget) {
               print('Link updated to: $linkTarget\n$originPath');
@@ -226,7 +226,7 @@ void main(List<String> arguments) async {
             }
           } else if (e is File) {
             print('Expected a link but found a file. $e');
-            String backup = '${e.path}.bkp';
+            final String backup = '${e.path}.bkp';
             print('Backup created: $backup');
             if (!dryRun) {
               e.renameSync(backup);
@@ -255,63 +255,71 @@ void main(List<String> arguments) async {
   ///
   ///
   /// Search in path to check
-  for (String dirName in dirNames) {
+  for (final String dirName in dirNames) {
     print('Checking: $dirName');
 
-    String checkNamePath = p.normalize(p.join(checkPath, dirName));
+    final String checkNamePath = p.normalize(p.join(checkPath, dirName));
 
-    Directory checkNameDir = Directory(checkNamePath);
+    final Directory checkNameDir = Directory(checkNamePath);
 
     if (checkNameDir.existsSync()) {
       /// List files
-      List<FileSystemEntity> entities = checkNameDir.listSync(
-        recursive: true,
-        followLinks: false,
-      )..retainWhere((FileSystemEntity e) {
-          if (e is File) {
-            for (RegExp regExp in regexAlwaysIgnorePaths) {
-              if (regExp.hasMatch(e.path)) {
-                // if (debug) {
-                //   print('[regexAlwaysIgnorePaths] => ${e.path}');
-                // }
-                return false;
-              }
-            }
+      List<FileSystemEntity> entities = <FileSystemEntity>[];
 
-            for (RegExp regExp in regexAlwaysAcceptPaths) {
-              if (regExp.hasMatch(e.path)) {
-                if (debug) {
-                  print('[regexAlwaysAcceptPaths] => ${e.path}');
+      try {
+        entities = checkNameDir.listSync(
+          recursive: true,
+          followLinks: false,
+        )..retainWhere((FileSystemEntity e) {
+            if (e is File) {
+              for (final RegExp regExp in regexAlwaysIgnorePaths) {
+                if (regExp.hasMatch(e.path)) {
+                  // if (debug) {
+                  //   print('[regexAlwaysIgnorePaths] => ${e.path}');
+                  // }
+                  return false;
                 }
-                return true;
               }
-            }
 
-            String filename = p.basename(e.path);
-
-            for (RegExp regexp in regexCheckFiles) {
-              if (regexp.hasMatch(filename)) {
-                if (debug) {
-                  print('[regexCheckFiles] => ${e.path}');
+              for (final RegExp regExp in regexAlwaysAcceptPaths) {
+                if (regExp.hasMatch(e.path)) {
+                  if (debug) {
+                    print('[regexAlwaysAcceptPaths] => ${e.path}');
+                  }
+                  return true;
                 }
-                return true;
+              }
+
+              final String filename = p.basename(e.path);
+
+              for (final RegExp regexp in regexCheckFiles) {
+                if (regexp.hasMatch(filename)) {
+                  if (debug) {
+                    print('[regexCheckFiles] => ${e.path}');
+                  }
+                  return true;
+                }
               }
             }
-          }
-          return false;
-        });
+            return false;
+          });
+      } on PathAccessException catch (e) {
+        print('[ERROR] PathAccessException: $checkNameDir');
+        print(e.message);
+        continue;
+      }
 
       /// Copy files
-      for (FileSystemEntity entity in entities) {
-        File origin = entity as File;
+      for (final FileSystemEntity entity in entities) {
+        final File origin = entity as File;
 
-        File dest =
+        final File dest =
             File(p.join(savePath, p.relative(origin.path, from: checkPath)));
 
-        String destPath = dest.path;
+        final String destPath = dest.path;
 
         if (dest.existsSync()) {
-          String backup = '$destPath.bkp';
+          final String backup = '$destPath.bkp';
           print('Backup created: $backup');
           if (!dryRun) {
             dest.renameSync(backup);
@@ -322,9 +330,9 @@ void main(List<String> arguments) async {
           }
         }
 
-        String originPath = origin.path;
+        final String originPath = origin.path;
 
-        String originParent = origin.parent.path;
+        final String originParent = origin.parent.path;
 
         print('Copy: $originPath to $destPath');
 

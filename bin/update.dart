@@ -21,23 +21,23 @@ class Update {
   ///
   Future<void> check() async {
     try {
-      Uri uri = Uri.parse(
+      final Uri uri = Uri.parse(
         'https://raw.githubusercontent.com/edufolly/dev_config/main/pubspec.yaml',
       );
 
-      String pubspec = await read(uri);
+      final String pubspec = await read(uri);
 
-      yaml.YamlMap doc = yaml.loadYaml(pubspec);
+      final yaml.YamlMap doc = yaml.loadYaml(pubspec);
 
       if (!doc.containsKey('version')) {
         return;
       }
 
-      String version = doc['version'];
+      final String version = doc['version'];
 
-      num newVersion = parse(version);
+      final num newVersion = parse(version);
 
-      num thisVersion = parse(Meta.version);
+      final num thisVersion = parse(Meta.version);
 
       if (newVersion > thisVersion) {
         print('');
