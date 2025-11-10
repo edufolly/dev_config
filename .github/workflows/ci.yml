@@ -16,7 +16,7 @@ jobs:
       version: ${{ steps.version-step.outputs.version }}
     steps:
       - name: Code Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Check Version
         run: ./check_version.sh
@@ -51,11 +51,12 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
       
       - name: Flutter SDK
         uses: subosito/flutter-action@v2
         with:
+          channel: 'stable'
           cache: true
           cache-key: flutter-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
 
@@ -73,7 +74,7 @@ jobs:
         run: tar -cvzf dev-config-linux.tar.gz dev-config
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v5
         with:
           name: dev-config-linux
           path: build/dev-config-linux.tar.gz
@@ -89,11 +90,12 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
       
       - name: Flutter SDK
         uses: subosito/flutter-action@v2
         with:
+          channel: 'stable'
           cache: true
           cache-key: flutter-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
 
@@ -110,7 +112,7 @@ jobs:
         run: Compress-Archive dev-config.exe dev-config-windows.zip
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v5
         with:
           name: dev-config-windows
           path: build/dev-config-windows.zip
@@ -126,11 +128,12 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
       
       - name: Flutter SDK
         uses: subosito/flutter-action@v2
         with:
+          channel: 'stable'
           cache: true
           cache-key: flutter-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
 
@@ -148,7 +151,7 @@ jobs:
         run: tar -cvzf dev-config-macos.tar.gz dev-config
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v5
         with:
           name: dev-config-macos
           path: build/dev-config-macos.tar.gz
@@ -166,16 +169,16 @@ jobs:
       contents: write
     steps:
       - name: Code Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Creating a GitHub Tag
-        uses: mathieudutour/github-tag-action@v6.0
+        uses: mathieudutour/github-tag-action@v6.2
         with:
           custom_tag: ${{ needs.boot.outputs.version }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v6
         with:
           path: artifacts
 
