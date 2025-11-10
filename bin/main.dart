@@ -177,10 +177,9 @@ void main(List<String> arguments) async {
   final List<FileSystemEntity> dirs = saveDir.listSync(followLinks: false)
     ..retainWhere((FileSystemEntity e) => e is Directory);
 
-  final List<String> dirNames = dirs
-      .map((FileSystemEntity e) => e.path.split(p.separator).last)
-      .toList()
-    ..sort((String a, String b) => a.compareTo(b));
+  final List<String> dirNames =
+      dirs.map((FileSystemEntity e) => e.path.split(p.separator).last).toList()
+        ..sort((String a, String b) => a.compareTo(b));
 
   // print('RootPath: $rootPath');
   // print('SaveDir: $saveDir');
@@ -195,8 +194,10 @@ void main(List<String> arguments) async {
   )..retainWhere((FileSystemEntity f) => f is File);
 
   for (final FileSystemEntity dest in allFiles) {
-    final String originPath =
-        p.join(checkPath, p.relative(dest.path, from: savePath));
+    final String originPath = p.join(
+      checkPath,
+      p.relative(dest.path, from: savePath),
+    );
 
     final String originParent = p.dirname(originPath);
 
@@ -267,10 +268,8 @@ void main(List<String> arguments) async {
       List<FileSystemEntity> entities = <FileSystemEntity>[];
 
       try {
-        entities = checkNameDir.listSync(
-          recursive: true,
-          followLinks: false,
-        )..retainWhere((FileSystemEntity e) {
+        entities = checkNameDir.listSync(recursive: true, followLinks: false)
+          ..retainWhere((FileSystemEntity e) {
             if (e is File) {
               for (final RegExp regExp in regexAlwaysIgnorePaths) {
                 if (regExp.hasMatch(e.path)) {
@@ -303,9 +302,9 @@ void main(List<String> arguments) async {
             }
             return false;
           });
-      } on PathAccessException catch (e) {
+      } on PathAccessException catch (ex) {
         print('[ERROR] PathAccessException: $checkNameDir');
-        print(e.message);
+        print(ex);
         continue;
       }
 
@@ -313,8 +312,9 @@ void main(List<String> arguments) async {
       for (final FileSystemEntity entity in entities) {
         final File origin = entity as File;
 
-        final File dest =
-            File(p.join(savePath, p.relative(origin.path, from: checkPath)));
+        final File dest = File(
+          p.join(savePath, p.relative(origin.path, from: checkPath)),
+        );
 
         final String destPath = dest.path;
 
