@@ -7,19 +7,19 @@ import 'package:yaml/yaml.dart' as yaml;
 void main(List<String> arguments) {
   print('Build Meta');
 
-  File pubspec = File('pubspec.yaml');
+  final File pubspec = File('pubspec.yaml');
 
   if (!pubspec.existsSync()) {
     exitError('pubspec.yaml not found');
   }
 
-  yaml.YamlMap doc = yaml.loadYaml(pubspec.readAsStringSync());
+  final yaml.YamlMap doc = yaml.loadYaml(pubspec.readAsStringSync());
 
   if (!doc.containsKey('version')) {
     exitError('version not found in pubspec.yaml');
   }
 
-  String version = doc['version'];
+  final String version = doc['version'];
 
   if (version.isEmpty) {
     exitError('version is empty');
@@ -27,7 +27,7 @@ void main(List<String> arguments) {
 
   print('Version: $version');
 
-  File meta = File('bin/meta.dart');
+  final File meta = File('bin/meta.dart');
 
   if (!meta.existsSync()) {
     exitError('bin/meta.dart not found');

@@ -11,11 +11,12 @@ jobs:
   boot:
     name: Boot
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       version: ${{ steps.version-step.outputs.version }}
     steps:
       - name: Code Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Check Version
         run: ./check_version.sh
@@ -23,8 +24,8 @@ jobs:
       - name: Flutter SDK
         uses: subosito/flutter-action@v2
         with:
-          cache: true
-          cache-key: flutter-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
+          channel: 'stable'
+          cache: false
 
       - name: Pub get
         run: dart pub get
@@ -38,7 +39,7 @@ jobs:
         id: version-step
         run: |
           VERSION=$(grep 'version:' pubspec.yaml | cut -c 10- | cut -f 1 -d '+')
-          echo "::set-output name=version::$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
   ###############
   # Linux Build #
@@ -47,13 +48,15 @@ jobs:
     name: Linux Build
     needs: [ boot ]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
       
       - name: Flutter SDK
         uses: subosito/flutter-action@v2
         with:
+          channel: 'stable'
           cache: true
           cache-key: flutter-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
 
@@ -71,7 +74,7 @@ jobs:
         run: tar -cvzf dev-config-linux.tar.gz dev-config
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v5
         with:
           name: dev-config-linux
           path: build/dev-config-linux.tar.gz
@@ -84,13 +87,15 @@ jobs:
     name: Windows Build
     needs: [ boot ]
     runs-on: windows-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
       
       - name: Flutter SDK
         uses: subosito/flutter-action@v2
         with:
+          channel: 'stable'
           cache: true
           cache-key: flutter-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
 
@@ -107,7 +112,7 @@ jobs:
         run: Compress-Archive dev-config.exe dev-config-windows.zip
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v5
         with:
           name: dev-config-windows
           path: build/dev-config-windows.zip
@@ -120,13 +125,15 @@ jobs:
     name: MacOS Build
     needs: [ boot ]
     runs-on: macos-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
       
       - name: Flutter SDK
         uses: subosito/flutter-action@v2
         with:
+          channel: 'stable'
           cache: true
           cache-key: flutter-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
 
@@ -144,7 +151,7 @@ jobs:
         run: tar -cvzf dev-config-macos.tar.gz dev-config
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v5
         with:
           name: dev-config-macos
           path: build/dev-config-macos.tar.gz
@@ -157,20 +164,21 @@ jobs:
     name: Release Deploy
     needs: [ boot, linux-build, windows-build, macos-build ]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write
     steps:
       - name: Code Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Creating a GitHub Tag
-        uses: mathieudutour/github-tag-action@v6.0
+        uses: mathieudutour/github-tag-action@v6.2
         with:
           custom_tag: ${{ needs.boot.outputs.version }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v6
         with:
           path: artifacts
 
