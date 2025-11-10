@@ -39,7 +39,7 @@ jobs:
         id: version-step
         run: |
           VERSION=$(grep 'version:' pubspec.yaml | cut -c 10- | cut -f 1 -d '+')
-          echo "::set-output name=version::$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
   ###############
   # Linux Build #
